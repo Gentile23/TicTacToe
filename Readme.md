@@ -26,3 +26,15 @@ L'utente può scegliere se giocare contro l'IA o osservare una partita tra due A
 -  **Maven** - Gestione delle dipendenze.
 -  **HTML5** - Il linguaggio di programmazione utilizzato per lo sviluppo front-end.
 
+## Come avviare TicTacToe
+
+### Avvio con IntelliJ IDEA  
+1. Apri il progetto in **IntelliJ IDEA**  
+2. Vai su **Esegui** → **Modifica configurazioni...**  
+3. Clicca su **+** → **Spring Boot** e seleziona la classe principale del progetto (es. `com.example.TicTacToeApplication`)  
+4. Salva la configurazione e premi il pulsante **Esegui** (▶) per avviare l’applicazione  
+
+### Avvio con Maven  
+Se preferisci avviare l’app tramite terminale, esegui:  
+```sh
+mvn spring-boot:run
