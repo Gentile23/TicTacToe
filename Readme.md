@@ -12,6 +12,10 @@ Per accedere alla documentazione ufficiale, clicca sul seguente link:
 
 [Documentazione ufficiale](src/main/resources/TicTacToe.pdf)
 
+Per accedere alla presentazione ufficiale, clicca sul seguente link:
+
+[Presentazione ufficiale](src/main/resources/TicTacToe_presentation.pdf)
+
 ## Utilizzo
 L'IA utilizza algoritmi di ricerca come Minimax con ottimizzazioni tramite Alpha-Beta Pruning per garantire mosse ottimali.
 L'utente può scegliere se giocare contro l'IA o osservare una partita tra due AI.
