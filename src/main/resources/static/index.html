@@ -190,32 +190,6 @@
             animation: fade-out-cell 0.8s forwards;
         }
 
-        /* Barra per pareggio */
-        .board.draw-animation::after {
-            background: var(--draw-color);
-            box-shadow: 0 0 15px var(--draw-color);
-        }
-
-        /* Barra per vittoria AI */
-        .board.ai-win-animation::after {
-            background: var(--lose-color);
-            box-shadow: 0 0 15px var(--lose-color);
-        }
-
-        /* Stile comune della barra */
-        .board.draw-animation::after,
-        .board.ai-win-animation::after {
-            content: '';
-            position: absolute;
-            width: 120%;
-            height: 15px;
-            top: 50%;
-            left: -10%;
-            border-radius: 10px;
-            transform: rotate(20deg) scaleX(0);
-            animation: slash-animation 0.5s ease-out forwards;
-        }
-
         .board.draw-animation #draw-text,
         .board.ai-win-animation #ai-win-text {
             animation: show-text-animation 0.6s 0.4s ease-out forwards;
@@ -225,12 +199,6 @@
             to {
                 background: rgba(44, 62, 80, 0.5);
                 color: #566573;
-            }
-        }
-
-        @keyframes slash-animation {
-            to {
-                transform: rotate(20deg) scaleX(1);
             }
         }
 
@@ -337,9 +305,10 @@
             } else if (gameState.winner === 'X') {
                 scores.ai++;
                 animationClass = 'ai-win-animation';
+                createConfetti(); // Coriandoli per la vittoria dell'IA
             } else {
                 scores.player++;
-                createConfetti();
+                createConfetti(); // Coriandoli per la vittoria del giocatore
             }
             updateScores();
             boardElement.style.pointerEvents = 'none';
