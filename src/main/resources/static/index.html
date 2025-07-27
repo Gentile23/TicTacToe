@@ -121,11 +121,6 @@
 
         .cell.x { color: var(--primary-color); }
         .cell.o { color: var(--secondary-color); }
-        .cell.win {
-            background: rgba(39, 174, 96, 0.3);
-            animation: pulse 1.5s infinite;
-        }
-
 
         .reset-button {
             background: var(--primary-color);
@@ -158,12 +153,6 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.95); }
-            100% { transform: scale(1); }
-        }
-
         .confetti {
             position: fixed;
             width: 10px;
@@ -174,6 +163,82 @@
 
         @keyframes confettiFall {
             to { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        /* --- TESTI ANIMAZIONI FINE PARTITA --- */
+        #draw-text, #ai-win-text {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4.5rem;
+            font-weight: bold;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transform: scale(0.5);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #draw-text { color: var(--draw-color); }
+        #ai-win-text { color: var(--lose-color); }
+
+        /* --- ANIMAZIONI GENERICHE FINE PARTITA --- */
+        .board.draw-animation .cell,
+        .board.ai-win-animation .cell {
+            animation: fade-out-cell 0.8s forwards;
+        }
+
+        /* Barra per pareggio */
+        .board.draw-animation::after {
+            background: var(--draw-color);
+            box-shadow: 0 0 15px var(--draw-color);
+        }
+
+        /* Barra per vittoria AI */
+        .board.ai-win-animation::after {
+            background: var(--lose-color);
+            box-shadow: 0 0 15px var(--lose-color);
+        }
+
+        /* Stile comune della barra */
+        .board.draw-animation::after,
+        .board.ai-win-animation::after {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 15px;
+            top: 50%;
+            left: -10%;
+            border-radius: 10px;
+            transform: rotate(20deg) scaleX(0);
+            animation: slash-animation 0.5s ease-out forwards;
+        }
+
+        .board.draw-animation #draw-text,
+        .board.ai-win-animation #ai-win-text {
+            animation: show-text-animation 0.6s 0.4s ease-out forwards;
+        }
+
+        @keyframes fade-out-cell {
+            to {
+                background: rgba(44, 62, 80, 0.5);
+                color: #566573;
+            }
+        }
+
+        @keyframes slash-animation {
+            to {
+                transform: rotate(20deg) scaleX(1);
+            }
+        }
+
+        @keyframes show-text-animation {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
     </style>
     <link rel="icon" type="image/png" href="favicon/favicon-32x32.png">
@@ -190,7 +255,10 @@
         </div>
 
         <div class="game-center">
-            <div class="board" id="board"></div>
+            <div class="board" id="board">
+                <div id="draw-text">DRAW</div>
+                <div id="ai-win-text">AI WINS</div>
+            </div>
             <div class="score-board">
                 <div class="score">AI: <span id="ai-score">0</span></div>
                 <div class="score">Draws: <span id="draws">0</span></div>
@@ -215,10 +283,17 @@
         player: 0,
         draws: 0
     };
+    const boardElement = document.getElementById('board');
 
     function createBoard() {
-        const board = document.getElementById('board');
-        board.innerHTML = '';
+        // Rimuove solo le celle, preservando i testi di fine partita
+        const children = Array.from(boardElement.children);
+        children.forEach(child => {
+            if (child.classList.contains('cell')) {
+                boardElement.removeChild(child);
+            }
+        });
+
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 const cell = document.createElement('div');
@@ -226,13 +301,13 @@
                 cell.onclick = () => makeMove(i, j);
                 cell.dataset.row = i;
                 cell.dataset.col = j;
-                board.appendChild(cell);
+                boardElement.appendChild(cell);
             }
         }
     }
 
     function updateBoard() {
-        const cells = document.getElementsByClassName('cell');
+        const cells = Array.from(boardElement.getElementsByClassName('cell'));
         const aiCard = document.getElementById('ai-card');
         const playerCard = document.getElementById('player-card');
 
@@ -241,10 +316,12 @@
         // Update cells
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
-                const cell = cells[i * 3 + j];
-                const value = gameState.board[i][j];
-                cell.textContent = value;
-                cell.className = 'cell' + (value !== ' ' ? ` ${value.toLowerCase()}` : '');
+                if(cells[i * 3 + j]) {
+                    const cell = cells[i * 3 + j];
+                    const value = gameState.board[i][j];
+                    cell.textContent = value;
+                    cell.className = 'cell' + (value !== ' ' ? ` ${value.toLowerCase()}` : '');
+                }
             }
         }
 
@@ -253,16 +330,27 @@
         playerCard.classList.toggle('active', !gameState.isAITurn);
 
         if (gameState.gameOver) {
+            let animationClass = null;
             if (gameState.winner === 'Draw') {
                 scores.draws++;
+                animationClass = 'draw-animation';
             } else if (gameState.winner === 'X') {
                 scores.ai++;
-                createConfetti();
+                animationClass = 'ai-win-animation';
             } else {
                 scores.player++;
                 createConfetti();
             }
             updateScores();
+            boardElement.style.pointerEvents = 'none';
+
+            if (animationClass) {
+                boardElement.classList.add(animationClass);
+                // Rimuovi l'animazione dopo 5 secondi
+                setTimeout(() => {
+                    boardElement.classList.remove(animationClass);
+                }, 5000);
+            }
         }
     }
 
@@ -288,14 +376,34 @@
         if (!gameState || gameState.gameOver || gameState.board[row][col] !== ' ' || gameState.isAITurn) return;
 
         try {
-            const response = await fetch(`/api/game/move?row=${row}&col=${col}`, {
+            const playerMoveResponse = await fetch(`/api/game/move?row=${row}&col=${col}`, {
                 method: 'POST'
             });
-            if (!response.ok) throw new Error('Network response was not ok');
-            gameState = await response.json();
+            if (!playerMoveResponse.ok) throw new Error('Network response was not ok');
+            gameState = await playerMoveResponse.json();
             updateBoard();
+
+            if (!gameState.gameOver) {
+                boardElement.style.pointerEvents = 'none';
+                setTimeout(triggerAIMove, 1000);
+            }
         } catch (error) {
             console.error('Error making move:', error);
+        }
+    }
+
+    async function triggerAIMove() {
+        try {
+            const aiMoveResponse = await fetch('/api/game/ai-move', { method: 'POST' });
+            if (!aiMoveResponse.ok) throw new Error('AI move network response was not ok');
+            gameState = await aiMoveResponse.json();
+            updateBoard();
+        } catch(error) {
+            console.error("Error triggering AI move:", error);
+        } finally {
+            if (!gameState.gameOver) {
+                boardElement.style.pointerEvents = 'auto';
+            }
         }
     }
 
@@ -303,6 +411,11 @@
         const button = document.querySelector('.reset-button');
         button.disabled = true;
         button.style.opacity = '0.7';
+        boardElement.style.pointerEvents = 'auto';
+
+        // Rimuovi tutte le possibili classi di animazione di fine partita
+        boardElement.classList.remove('draw-animation', 'ai-win-animation');
+        createBoard();
 
         try {
             const response = await fetch('/api/game/reset', {
@@ -311,6 +424,11 @@
             if (!response.ok) throw new Error('Network response was not ok');
             gameState = await response.json();
             updateBoard();
+
+            if (!gameState.gameOver && gameState.isAITurn) {
+                boardElement.style.pointerEvents = 'none';
+                setTimeout(triggerAIMove, 1000);
+            }
         } catch (error) {
             console.error('Error resetting game:', error);
         } finally {
@@ -326,6 +444,12 @@
             if (!response.ok) throw new Error('Network response was not ok');
             gameState = await response.json();
             updateBoard();
+
+            const isBoardEmpty = gameState.board.every(row => row.every(cell => cell === ' '));
+            if (isBoardEmpty && !gameState.gameOver && gameState.isAITurn) {
+                 boardElement.style.pointerEvents = 'none';
+                 setTimeout(triggerAIMove, 1000);
+            }
         } catch (error) {
             console.error('Error initializing game:', error);
         }

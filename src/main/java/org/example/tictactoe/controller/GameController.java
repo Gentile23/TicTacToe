@@ -12,22 +12,31 @@ public class GameController {
 
     @GetMapping("/state")
     public GameState getGameState() {
-        // Se l'IA inizia per prima, fai la sua mossa
-        if (gameState.isAIFirst() && gameState.getBoard()[0][0] == ' ') {
-            AIPlayer.Move aiMove = AIPlayer.findBestMove(gameState.getBoard());
-            GameLogic.makeMove(gameState, aiMove.row, aiMove.col);
+        return gameState;
+    }
+
+    /**
+     * Gestisce solo la mossa del giocatore umano.
+     */
+    @PostMapping("/move")
+    public GameState makeMove(@RequestParam int row, @RequestParam int col) {
+        // Esegui la mossa solo se il gioco non è finito e se è il turno del giocatore
+        if (!gameState.isGameOver() && !gameState.isAITurn()) {
+            GameLogic.makeMove(gameState, row, col);
         }
         return gameState;
     }
 
-    @PostMapping("/move")
-    public GameState makeMove(@RequestParam int row, @RequestParam int col) {
-        if (GameLogic.makeMove(gameState, row, col)) {
-            // Se il gioco non è finito e è il turno dell'IA, fai la mossa
-            if (!gameState.isGameOver() && gameState.isAITurn()) {
-                AIPlayer.Move aiMove = AIPlayer.findBestMove(gameState.getBoard());
-                GameLogic.makeMove(gameState, aiMove.row, aiMove.col);
-            }
+    /**
+     * Nuovo endpoint per far giocare l'IA.
+     * Il frontend lo chiamerà dopo un ritardo.
+     */
+    @PostMapping("/ai-move")
+    public GameState triggerAIMove() {
+        // Esegui la mossa dell'IA solo se il gioco non è finito e se è il suo turno
+        if (!gameState.isGameOver() && gameState.isAITurn()) {
+            AIPlayer.Move aiMove = AIPlayer.findBestMove(gameState.getBoard());
+            GameLogic.makeMove(gameState, aiMove.row, aiMove.col);
         }
         return gameState;
     }
@@ -35,11 +44,8 @@ public class GameController {
     @PostMapping("/reset")
     public GameState resetGame() {
         gameState = new GameState();
-        // Se l'IA inizia, fai la sua prima mossa
-        if (gameState.isAIFirst()) {
-            AIPlayer.Move aiMove = AIPlayer.findBestMove(gameState.getBoard());
-            GameLogic.makeMove(gameState, aiMove.row, aiMove.col);
-        }
+        // Non facciamo più muovere l'IA qui.
+        // Il frontend gestirà la prima mossa dell'IA se necessario.
         return gameState;
     }
 }

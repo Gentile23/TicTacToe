@@ -18,7 +18,6 @@ Per accedere alla presentazione ufficiale, clicca sul seguente link:
 
 ## Utilizzo
 L'IA utilizza algoritmi di ricerca come Minimax con ottimizzazioni tramite Alpha-Beta Pruning per garantire mosse ottimali.
-L'utente può scegliere se giocare contro l'IA o osservare una partita tra due AI.
 
 ## Tecnologie Utilizzate
 -  **Java** - Il linguaggio di programmazione utilizzato per lo sviluppo back-end.
@@ -28,11 +27,36 @@ L'utente può scegliere se giocare contro l'IA o osservare una partita tra due A
 
 ## Come avviare TicTacToe
 
-### Avvio con IntelliJ IDEA  
-1. Apri il progetto in **IntelliJ IDEA**  
-2. Vai su **Esegui** → **Modifica configurazioni...**  
-3. Clicca su **+** → **Spring Boot** e seleziona la classe principale del progetto (es. `com.example.TicTacToeApplication`)  
-4. Salva la configurazione e premi il pulsante **Esegui** (▶) per avviare l’applicazione  
+### Avvio dell'Applicazione con IntelliJ IDEA
+
+Per eseguire correttamente l'applicazione Spring Boot tramite **IntelliJ IDEA**, segui questi passaggi:
+- **Apri il progetto in IntelliJ IDEA**
+    - Avvia IntelliJ IDEA e apri la cartella del progetto Spring Boot.
+    - Assicurati che il progetto sia importato correttamente come progetto **Maven** o **Gradle** (a seconda del sistema di build utilizzato).
+- **Configura una nuova configurazione di esecuzione**
+    - Vai su **Esegui** → **Modifica configurazioni...** (Run → Edit Configurations...).
+    - Clicca su **+** in alto a sinistra e seleziona **Spring Boot**.
+    - Inserisci un nome descrittivo per la configurazione, ad esempio `Avvio Applicazione`.
+    - Nel campo **Classe principale (Main class)**, seleziona la classe che contiene il metodo `main()`, ad esempio:
+      ```
+      com.example.TicTacToeApplication
+      ```
+- **Salva la configurazione**
+    - Clicca su **Applica** e poi su **OK** per salvare la configurazione.
+- **Avvia l'applicazione**
+    - Seleziona la configurazione appena creata nella barra in alto.
+    - Clicca sul pulsante **Esegui** (▶) oppure premi `Shift + F10`.
+    - Attendi che nella console venga visualizzato il messaggio:
+      ```
+      Started Application in ... seconds
+      ```
+      che indica l’avvio corretto dell'applicazione.
+- **Accedi all'applicazione tramite browser**
+    - Una volta avviata, l'applicazione sarà accessibile all'indirizzo:
+      ```
+      http://localhost:8080
+      ```
+- Se hai configurato una porta diversa, assicurati di aggiornare l'indirizzo di conseguenza.
 
 ### Avvio con Maven  
 Se preferisci avviare l’app tramite terminale, esegui:  
